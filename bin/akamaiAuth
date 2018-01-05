@@ -1,0 +1,109 @@
+#!/usr/bin/env node
+
+// Copyright 2017 Akamai Technologies, Inc. All Rights Reserved
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//   http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+"use strict";
+
+/**
+ * Command line tool to interface with the WebSite library for manipulating the CDN activities on Akamai
+ *
+ * @author Kirsten Hunter <khunter@akamai.com>
+ */
+
+var path = require('path');
+let untildify = require('untildify');
+let edgeGridAuth = require('../index').edgeGridAuth;
+
+let app = "akamai auth";
+
+let config = untildify("~/.edgerc");
+let debug = false;
+let targetProperty;
+let searchString;
+
+function setup(app, options) {
+    return app.setup(options)
+    // We need to set up the authentication for NetStorage
+    // Assume they have all the pieces needed
+    // Store them in creds file in the .akamai_cli directory
+}
+
+function verify(app, options) {
+  return app.verify(options)
+  // We need to set up the authentication for NetStorage
+  // Assume they have all the pieces needed
+  // Store them in creds file in the .akamai_cli directory
+}
+
+function main () {
+    process.argv[1] = 'akamai auth'
+    const chalk = require('chalk')
+    return require('sywac')
+    .file('--config <config>', { 
+        desc: 'Config file',
+        defaultValue: untildify("~/.edgerc")
+    })
+      .string('--section <section>', { 
+        desc: 'Section for config file',
+        defaultValue: "default"
+      })
+     .command('setup', {
+        desc: 'Setup authentication for Akamai',
+        run: options => {
+           let app = new edgeGridAuth(options);
+            return setup(app, options);
+          }
+      })
+      .command('verify', {
+        desc: 'Verify existing credentials',
+        run: options => {
+            let app = new edgeGridAuth(options);
+            return verify(app, options)
+        }
+      })
+ 
+      .showHelpByDefault()
+      .help('--help', { group: "Command options:"})
+      .version('--version', { group: "Command options:"})
+      .epilogue('Copyright (C) Akamai Technologies, Inc\nVisit http://github.com/akamai/cli-auth for detailed documentation\n')
+      .style({
+        // you can style several other things too
+        // and even style things differently when validation fails for them
+        // see http://sywac.io/docs/sync-config.html#style
+        group: str => chalk.blue.bold(str),
+      })
+      .style({
+        group: str => chalk.bold.blue(str === 'Options:' ? 'General options:' : str)
+      })
+      .outputSettings({ maxWidth: 90 })
+      .parse()
+      .then(result => {
+        // let errors bubble up
+        if (result.errors.length) {
+            console.error(chalk.red.bold("\nERROR: \n\t"), result.output || JSON.stringify(result.output[0]));
+            console.output = "";
+        } else if (result.output) {
+          console.log(result.output)
+          process.exit(result.code)
+        }
+    })
+}
+  console.time(app);
+  var begin=Date.now();
+  
+  main().then(options => {
+    var end=Date.now();
+    var timeSpent=((end-begin)/1000/60).toPrecision(2) +" mins";
+  })                                               
