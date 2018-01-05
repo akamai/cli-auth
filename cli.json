@@ -4,10 +4,10 @@
   },
   "commands": [
     {
-      "name": "netstorage",
+      "name": "auth",
       "version": "0.0.1",
-      "description": "Interface for Akamai NetStorage",
-      "bin": "https://github.com/akamai/cli-netstorage/releases/download/{{.Version}}/akamai-{{.Name}}-{{.Version}}-{{.OS}}-{{.Arch}}{{.BinSuffix}}"
+      "description": "Interface for Akamai Edgegrid Authentication",
+      "bin": "https://github.com/akamai/cli-auth/releases/download/{{.Version}}/akamai-{{.Name}}-{{.Version}}-{{.OS}}-{{.Arch}}{{.BinSuffix}}"
     }
   ]
 }
