@@ -5,8 +5,8 @@
 // No command line arguments, we're just going to use the env vars
 let fs = require('fs')
 
-let source = "bin/akamaiNetStorage"
-let target = "akamai-netstorage-1.0.0"
+let source = "bin/akamaiAuth"
+let target = "akamai-auth-0.0.1"
 
 var exec = require('child-process-promise').exec;
 
@@ -18,7 +18,7 @@ exec(`pkg ${source} --target node8-linux-x86,node8-linux-x64,node8-win-x86,node8
         console.log('stderr: ', stderr);
     })
     .then(() => {
-      exec(`ls akamai-netstorage\*`)
+      exec(`ls akamai-auth\*`)
     .then(result => {
       for (let filename of result.stdout.split('\n')) {
         console.log(filename)

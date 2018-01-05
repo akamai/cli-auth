@@ -19,6 +19,7 @@
   ],
   "dependencies": {
     "chalk": "^2.3.0",
+    "child-process-promise": "^2.2.1",
     "ini": "^1.3.5",
     "inquirer": "^4.0.2",
     "merge": "^1.2.0",
