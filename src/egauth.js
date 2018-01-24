@@ -20,7 +20,7 @@ let ini = require('ini');
 let merge = require ('merge');
 let path = require ('path')
 let EdgeGrid = require('edgegrid');
-
+let prompt = require('cli-input');
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -104,7 +104,16 @@ class edgeGridAuth {
             })
         })
     }
-    
+ 
+    paste(options) {
+	console.log('Enter credentials blocks (finish with Ctrl^D):');
+	var ps = prompt();
+	ps.multiline(function(err, lines, raw) {
+  		console.log('you typed: "%s"', raw);
+  		process.exit(0);
+	}); 
+    }   
+
     setup(options) {
         let questions = []
         let list = ["client_secret","client_token","access_token","host"]

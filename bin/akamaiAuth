@@ -47,6 +47,10 @@ function verify(app, options) {
   // Store them in creds file in the .akamai_cli directory
 }
 
+function paste(app, options) {
+  return app.paste(options)
+}
+
 function main () {
     process.argv[1] = 'akamai auth'
     const chalk = require('chalk')
@@ -71,6 +75,13 @@ function main () {
         run: options => {
             let app = new edgeGridAuth(options);
             return verify(app, options)
+        }
+      })
+      .command('paste', {
+        desc: "Paste in a formatted credential block",
+        run: options => {
+            let app = new edgeGridAuth(options);
+            return paste(app, options)
         }
       })
  
