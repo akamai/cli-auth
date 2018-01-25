@@ -77,7 +77,7 @@ function main () {
             return verify(app, options)
         }
       })
-      .command('paste', {
+      .command('import', {
         desc: "Paste in a formatted credential block",
         run: options => {
             let app = new edgeGridAuth(options);

@@ -6,7 +6,7 @@
 let fs = require('fs')
 
 let source = "bin/akamaiAuth"
-let target = "akamai-auth-0.0.2"
+let target = "akamai-auth-0.0.3"
 
 var exec = require('child-process-promise').exec;
 

@@ -21,11 +21,11 @@ let merge = require ('merge');
 let path = require ('path')
 let EdgeGrid = require('edgegrid');
 let prompt = require('cli-input');
+const multiline = require('node-ask').multiline;
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
 }
-
 
 function readConfigFile(filename, section) {
     return new Promise(function(resolve, reject) {
@@ -41,7 +41,7 @@ function readConfigFile(filename, section) {
                 }
                 
             }
-          })
+        })
     })
 }
 
@@ -55,23 +55,33 @@ function writeConfigFile(filename, contents) {
             } else {
               resolve(result);
             }
-          })
+        })
     })
 }
 
+function createConfigFile(filename) {
+    return new Promise (function(resolve, reject) {
+       let contents = ""
+ 
+       fs.writeFile(filename, contents, function (error, result) {
+            if (error) {
+                reject(error)
+            } else {
+              resolve(result);
+            }
+ 	})
+    })
+}
 
 //export default class WebSite {
 class edgeGridAuth {
 
-    constructor(auth = { config: "~/.edgerc", section: "default", debug: false, default: true}) {
-        this._edge = new EdgeGrid({
-            path: untildify(auth.config),
-            section: auth.section,
-            debug: auth.debug
-        })
-    }
-        
     verify(options) {
+	this._edge = new EdgeGrid({
+            path: untildify(options.config),
+            section: options.section,
+            debug: options.debug
+        })
         return new Promise((resolve, reject) => {
             let request = {
                 method: "GET",
@@ -106,19 +116,26 @@ class edgeGridAuth {
     }
  
     paste(options) {
-	console.log('Enter credentials blocks (finish with Ctrl^D):');
-	var ps = prompt();
-	ps.multiline(function(err, lines, raw) {
-  		console.log('you typed: "%s"', raw);
-  		process.exit(0);
-	}); 
+	let newconfig = {};
+	return multiline('Input credential blocks followed by a newline:')
+	.then(answer => {
+		newconfig=ini.parse(answer)
+		return createConfigFile(options.config)
+	})
+	.then(() => {
+		return readConfigFile(options.config)
+	})
+	.then(config => {
+		config = merge(config, newconfig)
+		let filename = options.config
+		return writeConfigFile(filename, ini.stringify(config, {whitespace:true}))
+	})
     }   
 
     setup(options) {
         let questions = []
         let list = ["client_secret","client_token","access_token","host"]
         
-
         let currentConfig
         return new Promise((resolve, reject) => {
             console.log("You will need to use the credential information from Luna.  All fields are required.")
@@ -134,6 +151,9 @@ class edgeGridAuth {
             }
             return resolve()
         })
+	.then(() => {
+		return createConfigFile(options.config)
+	})
         .then(() => {
             return readConfigFile(options.config)
         })
