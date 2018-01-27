@@ -5,7 +5,7 @@
   "commands": [
     {
       "name": "auth",
-      "version": "0.0.2",
+      "version": "0.0.3",
       "description": "Interface for Akamai Edgegrid Authentication",
       "bin": "https://github.com/akamai/cli-auth/releases/download/{{.Version}}/akamai-{{.Name}}-{{.Version}}-{{.OS}}-{{.Arch}}{{.BinSuffix}}"
     }

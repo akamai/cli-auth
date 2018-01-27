@@ -51,6 +51,10 @@ function paste(app, options) {
   return app.paste(options)
 }
 
+function copy(app, options) {
+  return app.copy(options)
+}
+
 function main () {
     process.argv[1] = 'akamai auth'
     const chalk = require('chalk')
@@ -79,9 +83,32 @@ function main () {
       })
       .command('import', {
         desc: "Paste in a formatted credential block",
+        setup: sywac => {
+          sywac
+          .boolean('--overwrite', {
+            desc: 'Replace current credentials'
+          })
+        },
+
         run: options => {
             let app = new edgeGridAuth(options);
             return paste(app, options)
+        }
+      })
+      .command('copy', {
+        desc: "Copy credentials from one section to a new one",
+        setup: sywac => {
+          sywac
+          .string('--from <from>', {
+            desc: 'Section to copy from'
+          })
+          .string('--to <to>', {
+            desc: 'Section to copy to'
+          })
+        },
+        run: options => {
+          let app = new edgeGridAuth(options);
+          return copy(app, options);
         }
       })
  

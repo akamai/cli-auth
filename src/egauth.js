@@ -22,6 +22,7 @@ let path = require ('path')
 let EdgeGrid = require('edgegrid');
 let prompt = require('cli-input');
 const multiline = require('node-ask').multiline;
+const sprompt = require('node-ask').prompt;
 
 function sleep(time) {
     return new Promise((resolve) => setTimeout(resolve, time));
@@ -63,7 +64,7 @@ function createConfigFile(filename) {
     return new Promise (function(resolve, reject) {
        let contents = ""
  
-       fs.writeFile(filename, contents, function (error, result) {
+       fs.writeFile(filename, contents, {'flag':'a'}, function (error, result) {
             if (error) {
                 reject(error)
             } else {
@@ -105,11 +106,16 @@ class edgeGridAuth {
                             credential.activated +
                             " by " +
                             credential.activatedBy)
-
-                for (let scope of credential.scope.split()) {
+                console.log("Grants:")
+                let grants = []
+                for (let scope of credential.scope.split(' ')) {
                     let items = scope.split('/')
-                    console.log(items[5] + " : " + items[7])
+                    grants.push("    " +items[5] + " : " + items[7])
                 }
+                for (let grant of grants.sort()) {
+                    console.log(grant)
+                }
+
                 resolve(response);
             })
         })
@@ -119,18 +125,47 @@ class edgeGridAuth {
 	let newconfig = {};
 	return multiline('Input credential blocks followed by a newline:')
 	.then(answer => {
-		newconfig=ini.parse(answer)
-		return createConfigFile(options.config)
-	})
+        newconfig=ini.parse(answer)
+        if (newconfig["host"]) {
+            answer = "["+options.section+"]\n" + answer
+            newconfig = ini.parse(answer)
+        }
+        return createConfigFile(options.config)
+    })
 	.then(() => {
-		return readConfigFile(options.config)
+		if (options.overwrite) {
+            return Promise.resolve({})
+        } else {
+            return readConfigFile(options.config)
+        }
 	})
 	.then(config => {
-		config = merge(config, newconfig)
-		let filename = options.config
+        config = merge(config, newconfig)
+        let filename = options.config
 		return writeConfigFile(filename, ini.stringify(config, {whitespace:true}))
-	})
-    }   
+    })
+    .then(() => {
+        console.log("Success! Added credentials for:")
+        for (let section of Object.keys(newconfig)) {
+            console.log("  " + section)
+        }
+    })
+    } 
+    
+    copy(options) {
+        return readConfigFile(options.config)
+        .then(config => {
+            console.log(config)
+            config[options.to] = config[options.from]
+ 
+            let filename = options.config
+            return writeConfigFile(filename, ini.stringify(config, {whitespace:true}))
+        })
+        .then(() => {
+            console.log("Success! Copied credentials from section :" + options.to + " to " + options.from)
+        })
+        }   
+    
 
     setup(options) {
         let questions = []
