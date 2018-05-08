@@ -138,9 +138,9 @@ function main() {
     });
 }
 console.time(app);
-var begin = Date.now();
+const begin = Date.now();
 
 main().then(options => {
-  var end = Date.now();
-  var timeSpent = ((end - begin) / 1000 / 60).toPrecision(2) + ' mins';
+  const end = Date.now();
+  const timeSpent = ((end - begin) / 1000 / 60).toPrecision(2) + ' mins';
 });
