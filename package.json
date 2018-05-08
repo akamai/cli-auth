@@ -8,7 +8,9 @@
     "node": ">=7.0.0"
   },
   "scripts": {
+    "lint": "eslint --ignore-path .gitignore .",
     "start": "node bin/akamaiAuth",
+    "pretest": "npm run lint",
     "test": "mocha test --timeout 0",
     "build": "node release.js"
   },
@@ -33,5 +35,9 @@
     "safe-buffer": "^5.1.1",
     "sywac": "^1.2.0",
     "untildify": "*"
+  },
+  "devDependencies": {
+    "eslint": "^4.19.1",
+    "eslint-config-loopback": "^10.0.0"
   }
 }
