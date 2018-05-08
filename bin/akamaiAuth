@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-"use strict";
+'use strict';
 
 /**
  * Command line tool to interface with the WebSite library for manipulating the CDN activities on Akamai
@@ -26,122 +26,121 @@ var path = require('path');
 let untildify = require('untildify');
 let edgeGridAuth = require('../index').edgeGridAuth;
 
-let app = "akamai auth";
+let app = 'akamai auth';
 
-let config = untildify("~/.edgerc");
+let config = untildify('~/.edgerc');
 let debug = false;
-let targetProperty;
-let searchString;
+let targetProperty, searchString;
 
 function setup(app, options) {
-    return app.setup(options)
-    // We need to set up the authentication for NetStorage
-    // Assume they have all the pieces needed
-    // Store them in creds file in the .akamai_cli directory
+  return app.setup(options);
+  // We need to set up the authentication for NetStorage
+  // Assume they have all the pieces needed
+  // Store them in creds file in the .akamai_cli directory
 }
 
 function verify(app, options) {
-  return app.verify(options)
+  return app.verify(options);
   // We need to set up the authentication for NetStorage
   // Assume they have all the pieces needed
   // Store them in creds file in the .akamai_cli directory
 }
 
 function paste(app, options) {
-  return app.paste(options)
+  return app.paste(options);
 }
 
 function copy(app, options) {
-  return app.copy(options)
+  return app.copy(options);
 }
 
-function main () {
-    process.argv[1] = 'akamai auth'
-    const chalk = require('chalk')
-    return require('sywac')
-    .file('--config <config>', { 
-        desc: 'Config file',
-        defaultValue: untildify("~/.edgerc")
+function main() {
+  process.argv[1] = 'akamai auth';
+  const chalk = require('chalk');
+  return require('sywac')
+    .file('--config <config>', {
+      desc: 'Config file',
+      defaultValue: untildify('~/.edgerc'),
     })
-      .string('--section <section>', { 
-        desc: 'Section for config file',
-        defaultValue: "default"
-      })
-     .command('setup', {
-        desc: 'Setup authentication for Akamai',
-        run: options => {
-           let app = new edgeGridAuth(options);
-            return setup(app, options);
-          }
-      })
-      .command('verify', {
-        desc: 'Verify existing credentials',
-        run: options => {
-            let app = new edgeGridAuth(options);
-            return verify(app, options)
-        }
-      })
-      .command('import', {
-        desc: "Paste in a formatted credential block",
-        setup: sywac => {
-          sywac
+    .string('--section <section>', {
+      desc: 'Section for config file',
+      defaultValue: 'default',
+    })
+    .command('setup', {
+      desc: 'Setup authentication for Akamai',
+      run: options => {
+        let app = new edgeGridAuth(options);
+        return setup(app, options);
+      },
+    })
+    .command('verify', {
+      desc: 'Verify existing credentials',
+      run: options => {
+        let app = new edgeGridAuth(options);
+        return verify(app, options);
+      },
+    })
+    .command('import', {
+      desc: 'Paste in a formatted credential block',
+      setup: sywac => {
+        sywac
           .boolean('--overwrite', {
-            desc: 'Replace current credentials'
-          })
-        },
+            desc: 'Replace current credentials',
+          });
+      },
 
-        run: options => {
-            let app = new edgeGridAuth(options);
-            return paste(app, options)
-        }
-      })
-      .command('copy', {
-        desc: "Copy credentials from one section to a new one",
-        setup: sywac => {
-          sywac
+      run: options => {
+        let app = new edgeGridAuth(options);
+        return paste(app, options);
+      },
+    })
+    .command('copy', {
+      desc: 'Copy credentials from one section to a new one',
+      setup: sywac => {
+        sywac
           .string('--from <from>', {
-            desc: 'Section to copy from'
+            desc: 'Section to copy from',
           })
           .string('--to <to>', {
-            desc: 'Section to copy to'
-          })
-        },
-        run: options => {
-          let app = new edgeGridAuth(options);
-          return copy(app, options);
-        }
-      })
- 
-      .showHelpByDefault()
-      .help('--help', { group: "Command options:"})
-      .version('--version', { group: "Command options:"})
-      .epilogue('Copyright (C) Akamai Technologies, Inc\nVisit http://github.com/akamai/cli-auth for detailed documentation\n')
-      .style({
-        // you can style several other things too
-        // and even style things differently when validation fails for them
-        // see http://sywac.io/docs/sync-config.html#style
-        group: str => chalk.blue.bold(str),
-      })
-      .style({
-        group: str => chalk.bold.blue(str === 'Options:' ? 'General options:' : str)
-      })
-      .outputSettings({ maxWidth: 90 })
-      .parse()
-      .then(result => {
-        // let errors bubble up
-        if (result.errors.length) {
-            console.error(chalk.red.bold("\nERROR: \n\t"), result.output || JSON.stringify(result.output[0]));
-            console.output = "";
-        } else if (result.output) {
-          console.log(result.output)
-          process.exit(result.code)
-        }
+            desc: 'Section to copy to',
+          });
+      },
+      run: options => {
+        let app = new edgeGridAuth(options);
+        return copy(app, options);
+      },
     })
+
+    .showHelpByDefault()
+    .help('--help', {group: 'Command options:'})
+    .version('--version', {group: 'Command options:'})
+    .epilogue('Copyright (C) Akamai Technologies, Inc\nVisit http://github.com/akamai/cli-auth for detailed documentation\n')
+    .style({
+      // you can style several other things too
+      // and even style things differently when validation fails for them
+      // see http://sywac.io/docs/sync-config.html#style
+      group: str => chalk.blue.bold(str),
+    })
+    .style({
+      group: str => chalk.bold.blue(str === 'Options:' ? 'General options:' : str),
+    })
+    .outputSettings({maxWidth: 90})
+    .parse()
+    .then(result => {
+      // let errors bubble up
+      if (result.errors.length) {
+        console.error(chalk.red.bold('\nERROR: \n\t'), result.output || JSON.stringify(result.output[0]));
+        console.output = '';
+      } else if (result.output) {
+        console.log(result.output);
+        process.exit(result.code);
+      }
+    });
 }
-  console.time(app);
-  var begin=Date.now();
-  
-  main().then(options => {
-    var end=Date.now();
-    var timeSpent=((end-begin)/1000/60).toPrecision(2) +" mins";
-  })                                               
+console.time(app);
+var begin = Date.now();
+
+main().then(options => {
+  var end = Date.now();
+  var timeSpent = ((end - begin) / 1000 / 60).toPrecision(2) + ' mins';
+});
