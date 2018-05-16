@@ -4,15 +4,31 @@ version: v1.12.0
 ignore:
   'npm:hoek:20180212':
     - akamai-node-release > pkg > pkg-fetch > request > hawk > hoek:
-        reason: No solution
-        expires: '2018-06-08T20:01:51.318Z'
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
     - akamai-node-release > pkg > pkg-fetch > request > hawk > boom > hoek:
-        reason: No solution
-        expires: '2018-06-08T20:01:51.319Z'
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
     - akamai-node-release > pkg > pkg-fetch > request > hawk > sntp > hoek:
-        reason: No solution
-        expires: '2018-06-08T20:01:51.319Z'
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
     - akamai-node-release > pkg > pkg-fetch > request > hawk > cryptiles > boom > hoek:
-        reason: No solution
-        expires: '2018-06-08T20:01:51.320Z'
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
+  'npm:stringstream:20180511':
+    - edgegrid > request > stringstream:
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
+    - request > stringstream:
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
+    - akamai-edge-grid-auth > edgegrid > request > stringstream:
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
+    - akamai-edge-grid-auth > request > stringstream:
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
+    - akamai-node-release > pkg > pkg-fetch > request > stringstream:
+        reason: No solution now
+        expires: '2018-06-14T19:37:42.905Z'
 patch: {}

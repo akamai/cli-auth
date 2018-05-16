@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// Copyright 2017 Akamai Technologies, Inc. All Rights Reserved
+// Copyright 2018 Akamai Technologies, Inc. All Rights Reserved
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,41 +22,17 @@
  * @author Kirsten Hunter <khunter@akamai.com>
  */
 
-var path = require('path');
 let untildify = require('untildify');
-let edgeGridAuth = require('../index').edgeGridAuth;
+let CliAuth = require('../index').CliAuth;
+const chalk = require('chalk');
+const consoleLabel = 'akamai auth';
 
-let app = 'akamai auth';
-
-let config = untildify('~/.edgerc');
-let debug = false;
-let targetProperty, searchString;
-
-function setup(app, options) {
-  return app.setup(options);
-  // We need to set up the authentication for NetStorage
-  // Assume they have all the pieces needed
-  // Store them in creds file in the .akamai_cli directory
-}
-
-function verify(app, options) {
-  return app.verify(options);
-  // We need to set up the authentication for NetStorage
-  // Assume they have all the pieces needed
-  // Store them in creds file in the .akamai_cli directory
-}
-
-function paste(app, options) {
-  return app.paste(options);
-}
-
-function copy(app, options) {
-  return app.copy(options);
+function errorMessage(error, context) {
+  return context.cliMessage(chalk.red.bold('\nERROR: \n\t') + error.message + '\n');
 }
 
 function main() {
   process.argv[1] = 'akamai auth';
-  const chalk = require('chalk');
   return require('sywac')
     .file('--config <config>', {
       desc: 'Config file',
@@ -66,51 +42,63 @@ function main() {
       desc: 'Section for config file',
       defaultValue: 'default',
     })
+    .string('--from <from>', {
+      desc: 'Section to copy from',
+      group: 'Copy options:',
+    })
+    .string('--to <to>', {
+      desc: 'Section to copy to',
+      group: 'Copy options:',
+    })
+    .boolean('--overwrite', {
+      desc: 'Replace current credentials',
+      group: 'Import options:',
+    })
     .command('setup', {
       desc: 'Setup authentication for Akamai',
-      run: options => {
-        let app = new edgeGridAuth(options);
-        return setup(app, options);
+      run: (options, context) => {
+        try {
+          let app = new CliAuth(options);
+          return app.setup(options);
+        } catch (error) {
+          return errorMessage(error, context);
+        }
       },
     })
     .command('verify', {
       desc: 'Verify existing credentials',
-      run: options => {
-        let app = new edgeGridAuth(options);
-        return verify(app, options);
+      run: (options, context) => {
+        try {
+          let app = new CliAuth(options);
+          return app.verify(options);
+        } catch (error) {
+          return errorMessage(error, context);
+        }
       },
     })
     .command('import', {
       desc: 'Paste in a formatted credential block',
-      setup: sywac => {
-        sywac
-          .boolean('--overwrite', {
-            desc: 'Replace current credentials',
-          });
-      },
-
-      run: options => {
-        let app = new edgeGridAuth(options);
-        return paste(app, options);
+      run: (options, context) => {
+        try {
+          let app = new CliAuth(options);
+          return app.paste(options);
+        } catch (error) {
+          return errorMessage(error, context);
+        }
       },
     })
     .command('copy', {
       desc: 'Copy credentials from one section to a new one',
-      setup: sywac => {
-        sywac
-          .string('--from <from>', {
-            desc: 'Section to copy from',
-          })
-          .string('--to <to>', {
-            desc: 'Section to copy to',
-          });
-      },
-      run: options => {
-        let app = new edgeGridAuth(options);
-        return copy(app, options);
+      paramsDesc: ['Section to copy from', 'Section to copy to'],
+      run: (options, context) => {
+        try {
+          let app = new CliAuth(options);
+          return app.copy(options);
+        } catch (error) {
+          return errorMessage(error, context);
+        }
       },
     })
-
     .showHelpByDefault()
     .help('--help', {group: 'Command options:'})
     .version('--version', {group: 'Command options:'})
@@ -126,18 +114,18 @@ function main() {
     })
     .outputSettings({maxWidth: 90})
     .parse()
-    .then(result => {
+    .then((result, context) => {
       // let errors bubble up
       if (result.errors.length) {
-        console.error(chalk.red.bold('\nERROR: \n\t'), result.output || JSON.stringify(result.output[0]));
-        console.output = '';
+        console.error(chalk.red.bold('\nERROR: \n\t'), result.errors[0].message, '\n');
       } else if (result.output) {
         console.log(result.output);
         process.exit(result.code);
       }
     });
 }
-console.time(app);
+
+console.time(consoleLabel);
 const begin = Date.now();
 
 main().then(options => {
