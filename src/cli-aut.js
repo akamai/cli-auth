@@ -18,6 +18,7 @@ const ini = require('ini');
 const edgeGridAuth = require('akamai-edge-grid-auth').edgeGridAuth;
 const multiLine = require('node-ask').multiline;
 const chalk = require('chalk');
+const untildify = require('untildify');
 
 /**
  * Cli Authentication
@@ -35,10 +36,11 @@ class CliAuth {
     if (!options.section) {
       throw new Error('Invalid section in configuration parameters');
     }
+
     return new Promise((resolve) => {
       /** @var EdgeGridAuth */
       let app = new edgeGridAuth(options);
-      return app.verify(options.config, options.section)
+      app.verify(options.config, options.section)
         .then((credential) => {
           console.log('Credential Name: ' + credential.get('name'));
           console.log('---------------------------------');
@@ -64,11 +66,23 @@ class CliAuth {
             console.log(grant);
           }
           resolve();
-        })
-        .catch((error) => {
-          console.log('Error!' + error.message);
         });
-    });
+    })
+      .catch((error) => {
+        console.log('Error! ' + error.message);
+      });
+  }
+
+  pasteAskBlocks(section) {
+    return multiLine('Input credential blocks followed by a newline:')
+      .then(answer => {
+        let newConfig = ini.parse(answer);
+        if (newConfig['host']) {
+          answer = '[' + section + ']\n' + answer;
+          newConfig = ini.parse(answer);
+        }
+        return newConfig;
+      });
   }
 
   /**
@@ -80,29 +94,27 @@ class CliAuth {
     if (!options.config) {
       throw new Error('Invalid File parameters');
     }
-    let newconfig = {};
-    return multiLine('Input credential blocks followed by a newline:')
-      .then(answer => {
-        newconfig = ini.parse(answer);
-        if (newconfig['host']) {
-          answer = '[' + options.section + ']\n' + answer;
-          newconfig = ini.parse(answer);
-        }
-        return newconfig;
-      })
-      .then(() => {
-        let filename = options.config;
-        /** @var EdgeGridAuth */
-        let app = new edgeGridAuth(options);
-        return app.paste(filename, options.section, newconfig);
-      })
-      .then(() => {
-        console.log(chalk.green.bold('Success!'), 'Added credentials in section', chalk.blue.bold(options.section), 'for keys:');
-        for (let section of Object.keys(newconfig)) {
-          console.log('  ' + section);
-        }
-        console.log('\n');
-      });
+    let newConfig = {};
+    return new Promise((resolve) => {
+      return this.pasteAskBlocks(options.section)
+        .then((answers) => {
+          newConfig = answers;
+          let filename = options.config;
+          /** @var EdgeGridAuth */
+          let app = new edgeGridAuth(options);
+          return app.paste(filename, options.section, newConfig);
+        })
+        .then(() => {
+          console.log(chalk.green.bold('Success!'), 'Added credentials in section', chalk.blue.bold(options.section), 'for keys:');
+          for (let section of Object.keys(newConfig)) {
+            console.log('  ' + section);
+          }
+          console.log('\n');
+          resolve();
+        });
+    }).catch((error) => {
+      console.log('Error!' + error.message);
+    });
   }
 
   /**
@@ -114,13 +126,16 @@ class CliAuth {
     if (!options.from || !options.to) {
       throw new Error('Invalid parameters <from> and/or <to> for copy command');
     }
-    /** @var EdgeGridAuth */
-    let app = new edgeGridAuth(options);
-    app.copy(options.config, options.from, options.to)
-      .then((result) => {
-        console.log(result);
-        console.log('Success! Copied credentials from section ' + options.to + ' to ' + options.from);
-      })
+    return new Promise((resolve) => {
+      /** @var EdgeGridAuth */
+      let app = new edgeGridAuth(options);
+      app.copy(options.config, options.from, options.to)
+        .then((result) => {
+          console.log(result);
+          console.log('Success! Copied credentials from section ' + options.to + ' to ' + options.from);
+          resolve(result);
+        });
+    })
       .catch((error) => {
         console.log('Error! ' + error.message);
       });
