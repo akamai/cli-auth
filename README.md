@@ -30,8 +30,15 @@ Commands:
   copy    Copy credentials from one section to a new one
 
 General options:
-  --config <config>    Config file      [file] [default: /Users/guillermofigueroa/.edgerc]
+  --config <config>    Config file      [file] [default: ~/.edgerc]
   --section <section>  Section for config file                 [string] [default: default]
+
+Copy options:
+  --from <from>  Section to copy from                                             [string]
+  --to <to>      Section to copy to                                               [string]
+
+Import options:
+  --overwrite  Replace current credentials                                       [boolean]
 
 Command options:
   --help     Show help                                          [commands: help] [boolean]
