@@ -37,39 +37,33 @@ class CliAuth {
       throw new Error('Invalid section in configuration parameters');
     }
 
-    return new Promise((resolve) => {
-      /** @var EdgeGridAuth */
-      let app = new edgeGridAuth(options);
-      app.verify(options.config, options.section)
-        .then((credential) => {
-          console.log('Credential Name: ' + credential.get('name'));
-          console.log('---------------------------------');
-          console.log('Created ' +
-            credential.get('created') +
-            ' by ' +
-            credential.get('createdBy'));
-          console.log('Updated ' +
-            credential.get('updated') +
-            ' by ' +
-            credential.get('updatedBy'));
-          console.log('Activated ' +
-            credential.get('activated') +
-            ' by ' +
-            credential.get('activatedBy'));
-          console.log('Grants:');
-          let grants = [];
-          for (let scope of credential.get('scope').split(' ')) {
-            let items = scope.split('/');
-            grants.push('    ' + items[5] + ' : ' + items[7]);
-          }
-          for (let grant of grants.sort()) {
-            console.log(grant);
-          }
-          resolve();
-        });
-    })
-      .catch((error) => {
-        console.log('Error! ' + error.message);
+    /** @var EdgeGridAuth */
+    let app = new edgeGridAuth(options);
+    return app.verify(options.config, options.section)
+      .then((credential) => {
+        console.log('Credential Name: ' + credential.get('name'));
+        console.log('---------------------------------');
+        console.log('Created ' +
+          credential.get('created') +
+          ' by ' +
+          credential.get('createdBy'));
+        console.log('Updated ' +
+          credential.get('updated') +
+          ' by ' +
+          credential.get('updatedBy'));
+        console.log('Activated ' +
+          credential.get('activated') +
+          ' by ' +
+          credential.get('activatedBy'));
+        console.log('Grants:');
+        let grants = [];
+        for (let scope of credential.get('scope').split(' ')) {
+          let items = scope.split('/');
+          grants.push('    ' + items[5] + ' : ' + items[7]);
+        }
+        for (let grant of grants.sort()) {
+          console.log(grant);
+        }
       });
   }
 
@@ -113,7 +107,7 @@ class CliAuth {
           resolve();
         });
     }).catch((error) => {
-      console.log('Error!' + error.message);
+      throw error;
     });
   }
 
@@ -126,18 +120,12 @@ class CliAuth {
     if (!options.from || !options.to) {
       throw new Error('Invalid parameters <from> and/or <to> for copy command');
     }
-    return new Promise((resolve) => {
-      /** @var EdgeGridAuth */
-      let app = new edgeGridAuth(options);
-      app.copy(options.config, options.from, options.to)
-        .then((result) => {
-          console.log(result);
-          console.log('Success! Copied credentials from section ' + options.to + ' to ' + options.from);
-          resolve(result);
-        });
-    })
-      .catch((error) => {
-        console.log('Error! ' + error.message);
+    /** @var EdgeGridAuth */
+    let app = new edgeGridAuth(options);
+    return app.copy(options.config, options.from, options.to)
+      .then((result) => {
+        console.log(result);
+        console.log('Success! Copied credentials from section ' + options.to + ' to ' + options.from);
       });
   }
 
@@ -182,7 +170,7 @@ class CliAuth {
         console.log('Success!');
       })
       .catch((error) => {
-        console.log('Error!' + error.message);
+        throw error;
       });
   }
 }

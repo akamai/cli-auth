@@ -15,5 +15,5 @@
 'use strict';
 
 module.exports = {
-  CliAuth: require('./src/cli-aut'),
+  CliAuth: require('./src/cli-auth'),
 };

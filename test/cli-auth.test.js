@@ -16,7 +16,7 @@
 
 const {expect} = require('chai');
 const untildify = require('untildify');
-const CliAuth = require('../src/cli-aut');
+const CliAuth = require('../src/cli-auth');
 const cliAuth = new CliAuth();
 const fileName = 'test.config';
 const defaultSection = 'default';
@@ -26,19 +26,20 @@ const fs = require('fs');
 const EdgeGridAuth = require('akamai-edge-grid-auth').edgeGridAuth;
 const edgeGridAuth = new EdgeGridAuth();
 
-function captureStream(stream) {
-  var oldWrite = stream.write;
-  var buf = '';
-  stream.write = function(chunk, encoding, callback) {
+function captureStream(stream, is_error) {
+  is_error = is_error || false;
+  let oldWrite = stream.write;
+  let buf = '';
+  stream.write = (chunk, encoding, callback) => {
     buf += chunk.toString(); // chunk is a String or Buffer
     oldWrite.apply(stream, arguments);
   };
 
   return {
-    unhook: function unhook() {
+    unhook: () => {
       stream.write = oldWrite;
     },
-    captured: function() {
+    captured: () => {
       return buf;
     }
   };
@@ -97,17 +98,14 @@ describe('CliAuth', function() {
     done();
   });
   it('test verify credentials Exception for no file not exist in options', function(done) {
-    const options = {
-      config: 'invalid',
-      section: defaultSection
-    };
-    cliAuth.verify(options)
-      .then(() => {
-        let output = hook.captured();
-        expect(output).to.have.string('Error! The configuration file in invalid not exist');
-        done();
-      })
-      .catch(done);
+    expect(function() {
+      const options = {
+        config: 'invalid',
+        section: defaultSection
+      };
+      cliAuth.verify(options)
+    }).to.throw('The configuration file in invalid not exist');
+    done();
   });
   it('test verify credentials Exception for no section in options', function(done) {
     expect(function() {
@@ -120,23 +118,20 @@ describe('CliAuth', function() {
   });
   it('test paste credentials Exception for no file in options', function(done) {
     expect(function() {
-      const options = {};
+      const options = {
+        from: 'default',
+        to: 'other1'
+      };
       cliAuth.paste(options)
     }).to.throw('Invalid File parameters');
     done();
   });
   it('test copy credentials in command line', function(done) {
-    const options = {
-      config: fileName,
-      from: 'default',
-      to: 'other1'
-    };
-    cliAuth.copy(options)
-      .then((result) => {
-        expect(result).to.not.be.undefined
-        done();
-      })
-      .catch(done);
+    expect(function() {
+      const options = {};
+      cliAuth.paste(options)
+    }).to.throw('Invalid File parameters');
+    done();
   });
   it('test copy credentials exception', function(done) {
     expect(function() {
@@ -149,17 +144,14 @@ describe('CliAuth', function() {
     done();
   });
   it('test copy credentials exception for file name', function(done) {
-    const options = {
-      from: 'default',
-      to: 'other1'
-    };
-    cliAuth.copy(options)
-      .then(() => {
-        let output = hook.captured();
-        expect(output).to.have.string('Error! Invalid File Name parameter');
-        done();
-      })
-      .catch(done);
+    expect(function() {
+      const options = {
+        from: 'default',
+        to: 'other1'
+      };
+      cliAuth.copy(options)
+    }).to.throw('Invalid File Name parameter');
+    done();
   });
 });
 
