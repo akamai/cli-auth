@@ -21,7 +21,7 @@
     "src"
   ],
   "dependencies": {
-    "akamai-edge-grid-auth": "^1.0.2",
+    "akamai-edge-grid-auth": "^1.0.5",
     "akamai-node-release": "^1.0.4",
     "chalk": "^2.3.0",
     "child-process-promise": "^2.2.1",

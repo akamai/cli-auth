@@ -14,7 +14,7 @@
 /* eslint-disable */
 'use strict';
 
-const {expect} = require('chai');
+const {expect, assert} = require('chai');
 const untildify = require('untildify');
 const CliAuth = require('../src/cli-auth');
 const cliAuth = new CliAuth();
@@ -23,8 +23,8 @@ const defaultSection = 'default';
 let fileContent = 'Lorem Ipsum Dolor';
 const ini = require('ini');
 const fs = require('fs');
-const EdgeGridAuth = require('akamai-edge-grid-auth').edgeGridAuth;
-const edgeGridAuth = new EdgeGridAuth();
+const EdgeGridAuthMock = require('akamai-edge-grid-auth').edgeGridAuthMock;
+const edgeGridAuthMock = new EdgeGridAuthMock();
 
 function captureStream(stream, is_error) {
   is_error = is_error || false;
@@ -62,7 +62,7 @@ describe('CliAuth', function() {
       client_token: process.env.client_token,
     };
     fileContent = ini.stringify(config, {whitespace: true});
-    edgeGridAuth.writeConfigFile(fileName, fileContent);
+    edgeGridAuthMock.writeConfigFile(fileName, fileContent);
   });
   it('test verify credentials', function(done) {
     this.timeout(5000);
@@ -74,18 +74,35 @@ describe('CliAuth', function() {
         config: edgercPath,
         section: defaultSection
       };
-      cliAuth.verify(options)
-        .then(() => {
-          let output = hook.captured();
-          expect(output).to.have.string('Credential Name');
-          expect(output).to.have.string('Grants');
-          expect(output).to.have.string('diagnostic-tools');
+      edgeGridAuthMock.verify(fileName, 'default', false, () => {
+        return {
+          client_secret: 'loremipsumdolor',
+          host: 'http://loremipsumdolor.com',
+          access_token: 'loremipsumdolor',
+          client_token: 'loremipsumdolor',
+        }
+      })
+        .then((result) => {
+          assert.isDefined(result.data);
+          expect(result.get('client_secret')).to.equal('loremipsumdolor');
           done();
         })
         .catch(done);
     } else {
-      console.warn('This test need a valid credential placed in', untildify('~/.edgerc'));
-      done();
+      edgeGridAuthMock.verify(fileName, 'default', false, () => {
+        return {
+          client_secret: 'loremipsumdolor',
+          host: 'http://loremipsumdolor.com',
+          access_token: 'loremipsumdolor',
+          client_token: 'loremipsumdolor',
+        }
+      })
+        .then((result) => {
+          assert.isDefined(result.data);
+          expect(result.get('client_secret')).to.equal('loremipsumdolor');
+          done();
+        })
+        .catch(done);
     }
   });
   it('test verify credentials Exception for no file in options', function(done) {
