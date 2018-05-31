@@ -1,6 +1,6 @@
 {
   "name": "akamaicliauth",
-  "version": "0.0.3",
+  "version": "0.1.2",
   "description": "A CLI for setting up edgegrid credentials",
   "repository": "https://github.com/akamai/cli-auth",
   "license": "Apache-2.0",

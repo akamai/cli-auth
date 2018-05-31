@@ -13,7 +13,7 @@ In order to use this configuration, you need to:
 * When working through this process you need to give grants for the property manager API and the User Admin API (if you will want to move properties).  The section in your configuration file should be called 'papi'.
 
 ## Overview
-The Akamai Config Kit is a set of nodejs libraries that wraps Akamai's {OPEN} APIs to help simplify common configuration tasks.  
+This is a nodejs libraries that wraps Akamai's {OPEN} APIs to help simplify common configuration tasks.  
 
 This kit can be used in different ways:
 * [As a no-fuss command line utility](#akamaiProperty) to interact with the library.
